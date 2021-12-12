@@ -8,7 +8,7 @@ const chatId = "-1001412114934"
 const token = process.env.TOKEN ?? config.TOKEN
 
 const bot = new TelegramBot(token, {
-  polling: true,
+  polling: false,
 })
 
 

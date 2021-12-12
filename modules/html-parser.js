@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer")
 const axios = require("axios")
 const HTMLParser = require("node-html-parser")
-const request = require("request")
+// const request = require("request")
 
 const fetchActiveStartaps = async () => {
   const URL = "https://www.gate.io/startup"
@@ -40,8 +40,10 @@ const fetchNewlisted = async () => {
 
     const browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+    })
     const page = await browser.newPage();
+
+   // await page.setDefaultNavigationTimeout(0)
     await page.goto("https://www.gate.io/marketlist?tab=newlisted", {
       timeout: 120000,
       waitUntil: "networkidle0",
@@ -75,5 +77,9 @@ const root = HTMLParser.parse(
 
     return startups
 }
+
+
+
+
 
 module.exports = { fetchActiveStartaps, fetchNewlisted }
