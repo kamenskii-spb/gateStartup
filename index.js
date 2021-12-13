@@ -4,6 +4,7 @@ const config = require(path.join(__dirname, "./config.js"))
 const gateDom = require("./modules/html-parser")
 const telegram = require("./modules/telegram.js")
 const Startup = require("./models/Startup")
+const { connectToBrowser } = require("puppeteer")
 
 async function start() {
   try {
@@ -17,11 +18,12 @@ async function start() {
     /////////////////////// новый стартап
     const gateActivStartups = await gateDom.fetchActiveStartaps()
     for (gateActivStartup of gateActivStartups) {
+   
       const st = startups.find((s) => s.name === gateActivStartup.name)
       //если  активный и нет в базе
       if (!st) {
         telegram.sendImgByURL(gateActivStartup.src, gateActivStartup.title)
-        await saveStarpup(gateActivStartup)
+        await saveStartup(gateActivStartup)
       }
     }
     ////////////////////////
@@ -29,10 +31,18 @@ async function start() {
     const newlisteds = await gateDom.fetchNewlisted()
     if (newlisteds.length && startups.length) {
       for (let startup of startups) {
+         
         const newlisted = newlisteds.find(
           (n) => n.name.trim() === startup.name.trim()
         )
         if (newlisted) {
+          if (!startup.listingTimeAlert) {
+              telegram.sendMessage(
+                `After ${newlisted.day} days ${newlisted.time} trading on ${newlisted.name} will start`
+              )
+              await updateStartup(startup)
+          }
+         
           if (checkTime(newlisted.time)) {
             telegram.sendMessage(
               `in 10 minutes trading on ${newlisted.name} will start`
@@ -60,19 +70,27 @@ async function fetchStarpups() {
   return await Startup.find()
 }
 
-async function saveStarpup(startup) {
+async function saveStartup(startup) {
   const newStartup = new Startup({ name: startup.name })
-
   return await newStartup.save()
+}
+
+async function updateStartup(startup) {
+    const $set = {
+      listingTimeAlert: true
+    }
+   
+       await Startup.findOneAndUpdate(
+         {
+           _id: startup._id,
+         },
+         { $set }
+       )
 }
 
 function checkTime(startupStart, i = 10) {
   const myDate = "Oct 13, 2010"
   const start = new Date(myDate + " " + startupStart)
   const end = new Date(myDate + " " + "00:00:00")
-
   return start.setMinutes(start.getMinutes() - i) <= end
 }
-
-// getStartups()
-//await Post.deleteOne({_id: req.params.id})

@@ -11,7 +11,8 @@ const fetchActiveStartaps = async () => {
     const html = response.data
     const root = HTMLParser.parse(html)
     const data = []
-    const items = root.querySelectorAll(".effective-startup-item")
+    const $startup = root.querySelector('.effective-startup')
+    const items = $startup.querySelectorAll(".effective-startup-item")
 
     for (let item of items) {
       const init = item
@@ -70,6 +71,8 @@ const root = HTMLParser.parse(
      startups.push({
        name: name.textContent.trim(),
        time,
+       day,
+       n
      })
    }
  
