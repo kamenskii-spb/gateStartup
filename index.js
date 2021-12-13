@@ -38,7 +38,7 @@ async function start() {
         if (newlisted) {
           if (!startup.listingTimeAlert) {
               telegram.sendMessage(
-                `After ${newlisted.day} days ${newlisted.time} trading on ${newlisted.name} will start`
+                `After days ${newlisted.time} trading on ${newlisted.name} will start`
               )
               await updateStartup(startup)
           }
